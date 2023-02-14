@@ -2,17 +2,32 @@
 /* eslint-disable no-lone-blocks */
 
 import { useQuery } from '@tanstack/react-query'
-import { memo, useContext } from 'react'
+import { memo, useState, useEffect } from 'react'
 // import { dogFoodApi } from '../../../api/DogFoodApi'
-import { AppTokenContext } from '../../contexts/AppTokenContextProvider'
+// import { AppTokenContext } from '../../contexts/AppTokenContextProvider'
+import { useSelector } from 'react-redux'
 import { Louder } from '../../louder/Louder'
 import { ProductsItem } from './ProductsItem/ProductsItem'
 // import { withQuery } from '../../HOCs/withQuery'
+import { dogFoodApi } from '../../../api/DogFoodApi'
+import productsStyle from './productsStyle.module.css'
 
-// onst ProductsWithQuery = withQuery(Products)
+// const ProductsWithQuery = withQuery(Products)
 
 function Products() {
-  const { token } = useContext(AppTokenContext)
+  // eslint-disable-next-line no-unused-vars
+  const [token, setToken] = useState(() => {
+    const tokenFromStorage = localStorage.getItem('token')
+    return tokenFromStorage ?? ''
+  })
+
+  useEffect(() => {
+    localStorage.setItem('token', token)
+    dogFoodApi.setToken(token)
+  }, [token])
+
+  const { basketCounter } = useSelector((state) => state)
+
   console.log({ token })
   const {
     data, isLoading, isError, error, refetch,
@@ -40,18 +55,23 @@ function Products() {
   }
 
   console.log(isLoading, isError, error, refetch)
-
   const { products } = data
 
   return (
     <>
-      <h1>Products</h1>
-
+      <div>
+        <button
+          type="button"
+        >
+          Товары в корзине:
+          {basketCounter}
+        </button>
+      </div>
+      <h1 className={productsStyle.h1}>Products</h1>
       {products && (
-        <ul>
+        <div className={productsStyle.wrap}>
           {products.map((product) => (
             <ProductsItem
-              // eslint-disable-next-line no-underscore-dangle
               key={product._id}
               name={product.name}
               description={product.description}
@@ -60,13 +80,11 @@ function Products() {
               wight={product.wight}
             />
           ))}
-        </ul>
+        </div>
       )}
-
     </>
   )
 }
-
 export const ProductsMemo = memo(Products)
 
 // const ProductsInnerWithQuery = withQuery(ProductsInner)

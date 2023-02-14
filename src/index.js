@@ -5,12 +5,14 @@ import './index.css'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 // import { useQuery, useMutation, QueryClientProvider } from '@tanstack/react-query'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { Provider } from 'react-redux'
 import App from './App'
 import { Signup } from './components/Pages/Signup/Signup'
 import { SigninMemo as Signin } from './components/Pages/Signin/Signin'
 import { MainMemo as Main } from './components/Main/Main'
 import { ProductsMemo as Products } from './components/Pages/Products/Products'
-import { AppTokenContextProvider } from './components/contexts/AppTokenContextProvider'
+import { Basket } from './components/Basket/Basket'
+import { store } from './redux/store'
 
 const router = createBrowserRouter([
   {
@@ -33,6 +35,10 @@ const router = createBrowserRouter([
         path: 'products',
         element: <Products />,
       },
+      {
+        path: 'basket',
+        element: <Basket />,
+      },
     ],
   },
 ])
@@ -48,10 +54,10 @@ const queryClient = new QueryClient({
 const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <AppTokenContextProvider>
+    <Provider store={store}>
+      <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
-      </AppTokenContextProvider>
-    </QueryClientProvider>
+      </QueryClientProvider>
+    </Provider>
   </React.StrictMode>,
 )

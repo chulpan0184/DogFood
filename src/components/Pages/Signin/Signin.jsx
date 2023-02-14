@@ -4,12 +4,12 @@
 import {
   Formik, Form, Field, ErrorMessage,
 } from 'formik'
-import { memo, useContext } from 'react'
+import { memo, useState, useEffect} from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { createSigninFormValidationSchema } from './validatorSignin'
 import { dogFoodApi } from '../../../api/DogFoodApi'
-import { AppTokenContext } from '../../contexts/AppTokenContextProvider'
+// import { AppTokenContext } from '../../contexts/AppTokenContextProvider'
 
 const initialValues = {
   email: '',
@@ -17,7 +17,17 @@ const initialValues = {
 }
 
 function Signin() {
-  const { token, setToken } = useContext(AppTokenContext)
+  // const { token, setToken } = useContext(AppTokenContext)
+  const [token, setToken] = useState(() => {
+    const tokenFromStorage = localStorage.getItem('token')
+    return tokenFromStorage ?? ''
+  })
+
+  useEffect(() => {
+    localStorage.setItem('token', token)
+    dogFoodApi.setToken(token)
+  }, [token])
+
   const navigate = useNavigate()
   console.log(token)
 

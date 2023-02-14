@@ -30,5 +30,7 @@ module.exports = {
     'max-len': ['error', { code: 100 }],
     'jsx-a11y/click-events-have-key-events': 0,
     'jsx-a11y/no-static-element-interactions': 0,
+    'linebreak-style': ['error', 'windows'],
+    'no-underscore-dangle': 0,
   },
 }
