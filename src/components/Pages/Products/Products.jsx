@@ -5,12 +5,14 @@ import { useQuery } from '@tanstack/react-query'
 import { memo, useState, useEffect } from 'react'
 // import { dogFoodApi } from '../../../api/DogFoodApi'
 // import { AppTokenContext } from '../../contexts/AppTokenContextProvider'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import { Louder } from '../../louder/Louder'
 import { ProductsItem } from './ProductsItem/ProductsItem'
 // import { withQuery } from '../../HOCs/withQuery'
 import { dogFoodApi } from '../../../api/DogFoodApi'
 import productsStyle from './productsStyle.module.css'
+import { DELETE_ALL_PRODUCTS } from '../../../redux/type'
 
 // const ProductsWithQuery = withQuery(Products)
 
@@ -21,14 +23,22 @@ function Products() {
     return tokenFromStorage ?? ''
   })
 
-  useEffect(() => {
-    localStorage.setItem('token', token)
-    dogFoodApi.setToken(token)
-  }, [token])
+  const navigate = useNavigate()
+  useEffect(
+    () => {
+      if (!token) {
+        navigate('/signin')
+      } else {
+        localStorage.setItem('token', token)
+        dogFoodApi.setToken(token)
+      }
+    },
+    [token],
+  )
 
   const { basketCounter } = useSelector((state) => state)
+  const dispatch = useDispatch()
 
-  console.log({ token })
   const {
     data, isLoading, isError, error, refetch,
   } = useQuery({
@@ -54,6 +64,16 @@ function Products() {
     )
   }
 
+  const addBasketProductsHendler = () => {
+    navigate('/basket')
+  }
+
+  const clearProductsHandler = () => {
+    dispatch({
+      type: DELETE_ALL_PRODUCTS,
+    })
+  }
+
   console.log(isLoading, isError, error, refetch)
   const { products } = data
 
@@ -61,10 +81,18 @@ function Products() {
     <>
       <div>
         <button
+          onClick={addBasketProductsHendler}
           type="button"
         >
-          Товары в корзине:
+          Добавить в карзину:
+          {' '}
           {basketCounter}
+        </button>
+        <button
+          onClick={clearProductsHandler}
+          type="button"
+        >
+          Delete
         </button>
       </div>
       <h1 className={productsStyle.h1}>Products</h1>
@@ -73,6 +101,7 @@ function Products() {
           {products.map((product) => (
             <ProductsItem
               key={product._id}
+              id={product._id}
               name={product.name}
               description={product.description}
               pictures={product.pictures}

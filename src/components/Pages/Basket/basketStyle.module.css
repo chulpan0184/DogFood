@@ -1,0 +1,16 @@
+.wrap{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 18px;
+}
+.h1{
+    text-align:center;
+}
+
+.buttonWrap{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+}

@@ -6,6 +6,7 @@ import { Link, NavLink } from 'react-router-dom'
 import { memo, useState, useEffect } from 'react'
 
 import { useSelector } from 'react-redux'
+// import { useQuery } from '@tanstack/react-query'
 import dogLogo from './images/LogoDog.svg'
 import headerStyles from './header.module.css'
 import serch from './images/Serch.png'
@@ -33,13 +34,19 @@ function Header() {
 
   const { basketCounter } = useSelector((state) => state)
 
-  // const dispatch = useDispatch()
-
-  // const addBasketHandler = () => {
-  //   dispatch({
-  //     type: COUNTER_INCREMENT,
-  //   })
-  // }
+  // eslint-disable-next-line no-undef
+  // const search = useSelector(getSearchSelector)
+  // const {
+  //   data, isLoading, isError, error, refetch,
+  // } = useQuery({
+  //   // eslint-disable-next-line no-undef
+  //   queryKey: getQueryKey(search),
+  //   queryFn: () => dogFoodApi.getAllProducts(search),
+  //   enabled: (token !== undefined) && (token !== ''),
+  // })
+  // console.log({
+  //   data, isLoading, isError, error, refetch,
+  // })
 
   return (
     <header className={headerStyles.wr}>
@@ -60,9 +67,20 @@ function Header() {
             <input type="text" src={serch} placeholder="serch..." />
           </li>
           <li>
-            <NavLink className={headerStyles.basketNavLink} to="/basket">
+            <NavLink
+              className={headerStyles.basketNavLink}
+              to={token ? '/basket' : 'Signin'}
+            >
               Basket
               <div className={headerStyles.basketCounter}>{basketCounter}</div>
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              className={({ isActive }) => classNames({ [headerStyles.activLink]: isActive })}
+              to="Signin"
+            >
+              Signout
             </NavLink>
           </li>
           <li>
@@ -71,9 +89,9 @@ function Header() {
               className={({ isActive }) => classNames({
                 [headerStyles.activLink]: isActive,
               })}
-              to="/signin"
+              to={token ? 'products' : 'Signin'}
             >
-              { token ? 'Signout' : 'Signin' }
+              Signin
             </NavLink>
           </li>
           <li>

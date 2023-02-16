@@ -4,7 +4,7 @@
 
 // import { useDispatch } from 'react-redux'
 import { useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import productsitemStyle from './productsitem.module.css'
 // import { COUNTER_INCREMENT } from '../../../../redux/type'
 import { COUNTER_DECREMENT, COUNTER_INCREMENT } from '../../../../redux/type'
@@ -14,8 +14,8 @@ export function ProductsItem({
 }) {
   const dispatch = useDispatch()
   const [checked, setChecked] = useState(true)
-  const { basketCounter } = useSelector((state) => state)
-  console.log(basketCounter)
+  // const { basketCounter } = useSelector((state) => state)
+  // console.log(basketCounter)
 
   const checkHandler = () => {
     if (checked) {
