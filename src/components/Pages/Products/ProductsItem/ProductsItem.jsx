@@ -1,44 +1,53 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable linebreak-style */
 /* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable max-len */
 
 // import { useDispatch } from 'react-redux'
-import { useState } from 'react'
-import { useDispatch } from 'react-redux'
+
+import { useDispatch, useSelector } from 'react-redux'
+import { addNewProduct, deleteProduct, getAllCartProductsSelector } from '../../../../redux/slices/cartSlice'
 import productsitemStyle from './productsitem.module.css'
-// import { COUNTER_INCREMENT } from '../../../../redux/type'
-import { COUNTER_DECREMENT, COUNTER_INCREMENT } from '../../../../redux/type'
 
 export function ProductsItem({
-  products, name, price, pictures, description, wight,
+  products, name, price, pictures, wight, id,
 }) {
-  const dispatch = useDispatch()
-  const [checked, setChecked] = useState(true)
-  // const { basketCounter } = useSelector((state) => state)
-  // console.log(basketCounter)
+  const cart = useSelector(getAllCartProductsSelector)
 
-  const checkHandler = () => {
-    if (checked) {
-      dispatch({
-        type: COUNTER_INCREMENT,
-      })
-    } else {
-      dispatch({
-        type: COUNTER_DECREMENT,
-      })
-    }
-    setChecked(!checked)
+  const dispatch = useDispatch()
+  const moveToCartHandler = () => {
+    dispatch(addNewProduct(id))
   }
 
-  // setChecked(!checked)
+  const removeFromCartHandler = () => {
+    dispatch(deleteProduct(id))
+  }
+
+  const isInCart = (productsListId) => cart.find((product) => product.id === productsListId)
 
   return (
     <div className={productsitemStyle.wrapper}>
       <div className={productsitemStyle.card}>
         <div className={productsitemStyle.cardWr}>
           <p>{products}</p>
-          <h6>{name}</h6>
-          <img width="200px" height="100px" src={pictures} />
+          <div style={{
+            display: 'flex',
+            position: 'relative',
+            justifyContent: 'center',
+            minHeight: '50px',
+          }}
+          >
+            <h6>{name}</h6>
+          </div>
+          <div style={{
+            display: 'flex',
+            position: 'relative',
+            justifyContent: 'center',
+            marginBottom: '20px',
+          }}
+          >
+            <img style={{ borderRadius: '8px' }} width="250px" height="150px" src={pictures} />
+          </div>
           <p>
             цена:
             {' '}
@@ -47,27 +56,40 @@ export function ProductsItem({
             {' '}
             руб.
           </p>
-          <p>
-            Описание:
-            {' '}
-            {description}
-          </p>
-          <p>
+          <p className="mb-4">
             Вес:
             {' '}
             {wight}
           </p>
+          <button className="btn btn-primary mb-3" type="button" onClick={isInCart(id) ? removeFromCartHandler : moveToCartHandler}>
+            {isInCart(id) ? 'In basket' : 'Move'}
+          </button>
           <input
             type="checkbox"
-            defaultChecked={!checked}
-            onChange={checkHandler}
           />
-          {/*  */}
         </div>
       </div>
     </div>
   )
 }
+
+// const { basketCounter } = useSelector((state) => state)
+// console.log(basketCounter)
+
+// const checkHandler = () => {
+//   if (checked) {
+//     dispatch({
+//       type: COUNTER_INCREMENT,
+//     })
+//   } else {
+//     dispatch({
+//       type: COUNTER_DECREMENT,
+//     })
+//   }
+//   setChecked(!checked)
+// }
+
+// setChecked(!checked)
 
 // <>
 //   <div className="text-black-50 mt-1 d-flex justify-content-between align-items-center">

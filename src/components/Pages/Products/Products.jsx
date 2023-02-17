@@ -1,8 +1,9 @@
+/* eslint-disable no-undef */
 /* eslint-disable linebreak-style */
 /* eslint-disable no-lone-blocks */
 
 import { useQuery } from '@tanstack/react-query'
-import { memo, useState, useEffect } from 'react'
+import { memo, useEffect } from 'react'
 // import { dogFoodApi } from '../../../api/DogFoodApi'
 // import { AppTokenContext } from '../../contexts/AppTokenContextProvider'
 import { useDispatch, useSelector } from 'react-redux'
@@ -13,24 +14,19 @@ import { ProductsItem } from './ProductsItem/ProductsItem'
 import { dogFoodApi } from '../../../api/DogFoodApi'
 import productsStyle from './productsStyle.module.css'
 import { DELETE_ALL_PRODUCTS } from '../../../redux/type'
+import { getQuerySearchKey } from '../../../utils'
+import { getSearchSelector } from '../../../redux/slices/filterSlice'
+import { getTokenSelector } from '../../../redux/slices/tokenSlice'
 
 // const ProductsWithQuery = withQuery(Products)
 
 function Products() {
-  // eslint-disable-next-line no-unused-vars
-  const [token, setToken] = useState(() => {
-    const tokenFromStorage = localStorage.getItem('token')
-    return tokenFromStorage ?? ''
-  })
-
+  const token = useSelector(getTokenSelector)
   const navigate = useNavigate()
   useEffect(
     () => {
       if (!token) {
         navigate('/signin')
-      } else {
-        localStorage.setItem('token', token)
-        dogFoodApi.setToken(token)
       }
     },
     [token],
@@ -39,17 +35,13 @@ function Products() {
   const { basketCounter } = useSelector((state) => state)
   const dispatch = useDispatch()
 
+  const search = useSelector(getSearchSelector)
   const {
-    data, isLoading, isError, error, refetch,
+    data, isLoading, isError, error,
   } = useQuery({
-    queryKey: ['productsfetch'],
-    queryFn: () => fetch('https://api.react-learning.ru/products', {
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
-    }).then((res) => res.json(data)),
-    // dogFoodApi.getAllProducts()
-    enabled: token !== undefined,
+    queryKey: getQuerySearchKey(search),
+    queryFn: () => dogFoodApi.getAllProducts(search, token),
+    enabled: (token !== undefined) && (token !== ''),
   })
 
   if (isLoading) return <Louder />
@@ -74,7 +66,6 @@ function Products() {
     })
   }
 
-  console.log(isLoading, isError, error, refetch)
   const { products } = data
 
   return (

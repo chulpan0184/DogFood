@@ -1,4 +1,14 @@
+import { REDUX_LS_KEY } from './constants'
+
 export const initState = {
-  products: [],
-  basketCounter: 0,
+  cart: [],
+  token: '',
+  filter: {
+    search: '',
+  },
+}
+
+export function gitInitState() {
+  const dataFromLS = localStorage.getItem(REDUX_LS_KEY)
+  return dataFromLS ? JSON.parse(dataFromLS) : initState
 }

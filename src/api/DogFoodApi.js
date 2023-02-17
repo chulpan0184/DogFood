@@ -1,30 +1,33 @@
 /* eslint-disable linebreak-style */
+
 class DogFoodApi {
   constructor({ baseUrl }) {
     this.baseUrl = baseUrl
 
-    this.token = ''
+    // this.token = ''
   }
 
-  getAuthorizationHeader() {
-    return `Bearer ${this.token}`
+  // eslint-disable-next-line class-methods-use-this
+  getAuthorizationHeader(token) {
+    return `Bearer ${token}`
   }
 
-  setToken(token) {
-    this.token = token
+  // setToken(token) {
+  //   this.token = token
+  // }
+
+  // eslint-disable-next-line class-methods-use-this
+  checkToken(token) {
+    if (!token) throw new Error('Отсутствует токен')
   }
 
-  checkToken() {
-    if (!this.token) throw new Error('Отсутствует токен')
-  }
-
-  async Signin(values) {
+  async Signin(data) {
     const res = await fetch(`${this.baseUrl}/signin`, {
       method: 'POST',
       headers: {
         'Content-type': 'application/json',
       },
-      body: JSON.stringify(values),
+      body: JSON.stringify(data),
     })
     if (res.status === 401) {
       throw new Error(
@@ -38,17 +41,44 @@ class DogFoodApi {
     return res.json()
   }
 
-  // async Signup() {}
-
-  async getAllProducts() {
-    this.checkToken()
-    const res = await fetch(`${this.baseUrl}/products`, {
+  async Signup(data) {
+    const res = await fetch(`${this.baseUrl}/signup`, {
+      method: 'POST',
       headers: {
-        authorization: this.getAuthorizationHeader(),
+        'Content-type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+    return res.json()
+  }
+
+  async getProductsByIds(ids, token) {
+    this.checkToken(token)
+    return Promise.all(ids.map((id) => fetch(`${this.baseUrl}/products/${id}`, {
+      headers: {
+        authorization: this.getAuthorizationHeader(token),
       },
     })
-    // Обработка ошибок
-    console.log(res)
+      .then((res) => res.json())))
+  }
+
+  async getAllProducts(search, token) {
+    this.checkToken(token)
+    const res = await fetch(`${this.baseUrl}/products/?q=${search}`, {
+      headers: {
+        authorization: this.getAuthorizationHeader(token),
+      },
+    })
+    if (res.status === 401) {
+      throw new Error(
+        `Авторизация не пройдена непраильный логин или пароль. Status: ${res.status}`,
+      )
+    } if (res.status === 404) {
+      throw new Error(`Авторизация не пройдена пользователь не найден. Status: ${res.status}`)
+    } if (res.status >= 300) {
+      throw new Error(`Ошибка. Status: ${res.status}`)
+    }
+    return res.json()
   }
 
   async getProductById(ProductId) {
@@ -61,10 +91,5 @@ class DogFoodApi {
     // Обработка ошибок
     console.log(res)
   }
-
-  // async getProductsByIds() {
-//      this.checkToken()
-//   }
 }
-
 export const dogFoodApi = new DogFoodApi({ baseUrl: 'https://api.react-learning.ru' })

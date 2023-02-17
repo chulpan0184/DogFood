@@ -4,11 +4,14 @@
 import {
   Formik, Form, Field, ErrorMessage,
 } from 'formik'
-import { memo, useState, useEffect } from 'react'
+import { memo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
+import { useSelector, useDispatch } from 'react-redux'
+
 import { createSigninFormValidationSchema } from './validatorSignin'
 import { dogFoodApi } from '../../../api/DogFoodApi'
+import { getToken, getTokenSelector } from '../../../redux/slices/tokenSlice'
 // import { AppTokenContext } from '../../contexts/AppTokenContextProvider'
 
 const initialValues = {
@@ -17,41 +20,20 @@ const initialValues = {
 }
 
 function Signin() {
-  // const { token, setToken } = useContext(AppTokenContext)
-  const [token, setToken] = useState(() => {
-    const tokenFromStorage = localStorage.getItem('token')
-    return tokenFromStorage ?? ''
-  })
-
-  useEffect(() => {
-    localStorage.setItem('token', token)
-    dogFoodApi.setToken(token)
-  }, [token])
-
+  const token = useSelector(getTokenSelector)
+  const dispatch = useDispatch()
   const navigate = useNavigate()
-  console.log(token)
-
-  // eslint-disable-next-line no-unused-vars
-  const { mutateAsync, isError, error } = useMutation({
-    mutationFn: (values) => dogFoodApi.Signin(values).then((res) => {
-      setToken(res.token)
-      // if (res.status === 401) {
-
-      //       throw new Error(`Авторизация не пройдена непраильный логин или пароль. Status: ${res.status}`)
-      //     } else if (res.status !== 401) {
-      //       navigate('/products')
-      //     }
-      //     return res.json()
-    }),
+  const { mutateAsync } = useMutation({
+    mutationFn: (values) => dogFoodApi.Signin(values, token)
+      .then((res) => dispatch(getToken(res.token))),
   })
-
-  // console.log(isError, error)
 
   const submitHandler = async (values) => {
     await mutateAsync(values)
     setTimeout(() => navigate('/products'))
     // navigate('/products')
   }
+
   return (
     <Formik
       initialValues={initialValues}
@@ -72,19 +54,3 @@ function Signin() {
 }
 
 export const SigninMemo = memo(Signin)
-// const {
-//   data, isLoading, isError, error, refetch,
-// } = useQueries({
-//   queryKey: ['UserListfetch'],
-//   queryFn: () => fetch('https://https://api.react-learning.ru/signin').then((res) => res.json()),
-// })
-
-// console.log({
-//   data, isLoading, isError, error, refetch,
-// })
-
-// const submitHandler = (values) => {
-//   console.log({ values })
-// }
-
-// export const SigninMemo = React.memo(Signin)
